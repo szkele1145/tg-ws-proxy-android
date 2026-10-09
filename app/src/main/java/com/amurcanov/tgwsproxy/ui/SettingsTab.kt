@@ -443,6 +443,76 @@ fun SettingsTab(settingsStore: SettingsStore) {
         }
 
         Spacer(Modifier.height(12.dp))
+
+        // ---------------- 后台保活 ----------------
+        AppSectionCard {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Default.PowerSettingsNew, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                    Text(
+                        stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Text(
+                    stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = 16.sp
+                )
+
+                var batteryOk by remember { mutableStateOf(BatteryHelper.isIgnoringBatteryOptimizations(context)) }
+
+                // 刷新状态：从系统设置返回后重新检测
+                androidx.compose.runtime.LaunchedEffect(Unit) {
+                    batteryOk = BatteryHelper.isIgnoringBatteryOptimizations(context)
+                }
+
+                Text(
+                    text = if (batteryOk) stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_battery_ok)
+                           else stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_battery_todo),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (batteryOk) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Button(
+                    onClick = {
+                        BatteryHelper.requestIgnoreBatteryOptimizations(context)
+                        batteryOk = BatteryHelper.isIgnoringBatteryOptimizations(context)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    Text(stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_request_battery))
+                }
+
+                OutlinedButton(
+                    onClick = { BatteryHelper.openAutoStartSettings(context) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    Text(stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_open_autostart))
+                }
+
+                OutlinedButton(
+                    onClick = { BatteryHelper.openAppDetails(context) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    Text(stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_open_details))
+                }
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
     }
 }
 
