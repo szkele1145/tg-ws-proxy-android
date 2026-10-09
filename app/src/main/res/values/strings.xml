@@ -129,9 +129,10 @@
     <string name="port_is_not_available">Port %1$d is in use, please try another one</string>
     <!-- Keep-alive -->
     <string name="keepalive_title">Background keep-alive</string>
-    <string name="keepalive_desc">The system may kill the proxy while the screen is off. Add this app to the battery optimization whitelist and allow it in your device's autostart / background manager.</string>
+    <string name="keepalive_desc">The system may kill the proxy while the screen is off. Add this app to the battery optimization whitelist and allow it in your device\'s autostart / background manager.</string>
     <string name="keepalive_battery_ok">✓ Already in battery optimization whitelist</string>
     <string name="keepalive_battery_todo">✗ Not in battery optimization whitelist yet</string>
     <string name="keepalive_request_battery">Request ignore battery optimizations</string>
     <string name="keepalive_open_autostart">Open autostart manager</string>
-    <string name="keepalive_open_details">Open app details settings</string></resources>
+    <string name="keepalive_open_details">Open app details settings</string>
+</resources>
