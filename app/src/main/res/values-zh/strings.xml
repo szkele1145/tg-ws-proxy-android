@@ -141,4 +141,11 @@
     <string name="interval_never">从不</string>
     <string name="interval_hours">%1$d 小时</string>
     <string name="port_is_not_available">端口 %1$d 已被占用，请换一个</string>
-</resources>
+    <!-- 后台保活 -->
+    <string name="keepalive_title">后台保活</string>
+    <string name="keepalive_desc">系统可能在息屏后杀掉代理。请把本应用加入电池优化白名单，并在系统的自启动/后台管理里允许它常驻。</string>
+    <string name="keepalive_battery_ok">✓ 已在电池优化白名单中</string>
+    <string name="keepalive_battery_todo">✗ 尚未加入电池优化白名单</string>
+    <string name="keepalive_request_battery">请求忽略电池优化</string>
+    <string name="keepalive_open_autostart">打开自启动管理</string>
+    <string name="keepalive_open_details">打开应用详情设置</string></resources>
