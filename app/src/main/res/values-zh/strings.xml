@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Telegram WS 代理</string>
+
+    <!-- 状态 -->
+    <string name="status_connecting">连接中</string>
+    <string name="status_connected">已连接</string>
+    <string name="status_disconnected">已断开</string>
+
+    <!-- 主界面 -->
+    <string name="section_launch">启动</string>
+    <string name="apply_in_telegram">应用到 Telegram</string>
+    <string name="copied">已复制</string>
+    <string name="copy">复制</string>
+    <string name="direct_mode">直连</string>
+    <string name="pool_short">连接池 x%1$d</string>
+    <string name="port_short">端口 %1$s</string>
+    <string name="theme">主题</string>
+    <string name="theme_system">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+    <string name="dynamic_colors">动态取色</string>
+    <string name="palette">调色板</string>
+    <string name="settings">设置</string>
+    <string name="connection">连接</string>
+    <string name="port">端口</string>
+    <string name="auto_cf_enabled">自动（启用 CloudFlare）</string>
+    <string name="configure_dc_addresses">配置数据中心地址</string>
+    <string name="ws_pool">WS 连接池</string>
+    <string name="secret_key">密钥</string>
+    <string name="autostart">开机自启</string>
+    <string name="dc_addresses">数据中心地址</string>
+    <string name="media_dcs">媒体数据中心</string>
+    <string name="experimental_mode">实验模式</string>
+    <string name="done">完成</string>
+    <string name="telegram_not_found">未找到 Telegram！</string>
+    <string name="event_log">事件日志</string>
+    <string name="clear">清空</string>
+    <string name="null_logs_disabled">NULL - 日志已禁用</string>
+    <string name="info">信息</string>
+
+    <!-- 更新 -->
+    <string name="update_checking">正在检查 GitHub 版本…</string>
+    <string name="update_available_on_github">GitHub 上有新版本 %1$s</string>
+    <string name="update_latest_version">最新版本：%1$s</string>
+    <string name="update_last_check_failed">上次检查失败</string>
+    <string name="update_check_manually">手动检查 GitHub</string>
+    <string name="actions">操作</string>
+    <string name="items_count">%1$d 项</string>
+    <string name="links_count">%1$d 个链接</string>
+    <string name="raise_issue">提交问题</string>
+    <string name="open_github_issue">在 GitHub 上提交 issue</string>
+    <string name="build_report">生成报告</string>
+    <string name="report_subtitle">Android、ABI、设置、错误</string>
+    <string name="report_copied">报告已生成并复制</string>
+    <string name="help">帮助</string>
+    <string name="help_subtitle">关于 CloudFlare、WS 连接池、手动数据中心和启动缓慢的简要说明</string>
+    <string name="check_updates">检查更新</string>
+    <string name="update_check_failed_short">无法检查</string>
+    <string name="update_check_failed_known">无法检查。最后已知版本：%1$s</string>
+    <string name="update_check_failed">无法检查更新</string>
+    <string name="update_already_latest">您已是最新版本：%1$s</string>
+
+    <!-- 关于 -->
+    <string name="about_project">关于项目</string>
+    <string name="android_author">Android 版作者</string>
+    <string name="android_author_subtitle">GitHub 主页 amurcanov</string>
+    <string name="android_fork_repo">Android 分支仓库</string>
+    <string name="android_fork_repo_subtitle">本应用的源代码与发布版本</string>
+    <string name="original_tg_ws_proxy">原版 tg-ws-proxy</string>
+    <string name="original_tg_ws_proxy_subtitle">原始创意与上游项目，作者 Flowseal</string>
+    <string name="useful_material">实用资料</string>
+    <string name="useful_material_subtitle">IMDelewer 的代理笔记</string>
+    <string name="update_postponed_24h">更新已推迟 24 小时。</string>
+
+    <!-- 帮助内容 -->
+    <string name="help_auto_dc_title">自动 / 数据中心地址</string>
+    <string name="help_auto_dc_text">启用 CloudFlare 时通常不需要手动填写数据中心地址：代理会走 CF 线路。如果关闭 CloudFlare，连接将直连 Telegram 数据中心，此时你可以手动设置地址。普通模式下 DC2 和 DC4 通常就够了，其他地址主要用于手动配置和诊断。</string>
+    <string name="help_cloudflare_text">该模式通过 CloudFlare 背后的 WebSocket 域名转发连接。在某些移动网络下可能更稳定，但效果取决于路由、DNS 和运营商。如果你所在网络下连接变慢或不稳定，可以和关闭 CF 时对比一下。</string>
+    <string name="help_ws_pool_text">预热 WebSocket 连接的数量。更大的连接池可以减少首次连接和媒体加载时的延迟，但会增加后台连接数。多数情况下 2-4 就够用，只有在你的网络下确实有收益时才调大。</string>
+    <string name="help_secret_key_text">特殊的 16 字节 MTProto 加密密钥。仅当他人获取了你旧连接链接时才需要更换。</string>
+    <string name="help_experimental_text">为所有常规和媒体数据中心开启手动配置：DC1、DC3、DC5、DC203 及其媒体变体。适用于诊断、测试和非标准线路。如果没有明确的手动路由需求，请保持关闭。</string>
+    <string name="help_autostart_text">设备重启后尝试自动启动代理。如果你一直使用本地代理，这会很方便。在某些固件上可能不会立即启动：系统可能要等 Android 完全启动或首次解锁后才会执行。</string>
+    <string name="help_slow_connect_title">如果连接耗时很久</string>
+    <string name="help_slow_connect_text">如果代理启动后 Telegram 长时间停留在连接中，通常说明当前线路失败了，而不是应用崩溃了。此时可以快速重启代理，并对比启用和关闭 CloudFlare 时的表现。</string>
+    <string name="understood">知道了</string>
+    <string name="hero_description">适用于 Android 的本地 MTProto 代理，支持直连和 CloudFlare 模式。适用于 Telegram 加载不稳定或因线路问题卡住的网络环境。</string>
+
+    <!-- 报告 -->
+    <string name="report_mode_direct">直连</string>
+    <string name="report_cf_domain">CF 域名：%1$s</string>
+    <string name="none_lower">无</string>
+    <string name="report_app_version">应用版本：%1$s</string>
+    <string name="report_android">Android：%1$s（SDK %2$d）</string>
+    <string name="report_device">设备：%1$s / %2$s / %3$s</string>
+    <string name="report_device_code">设备代号：%1$s</string>
+    <string name="report_product">产品：%1$s</string>
+    <string name="report_all_abi">全部 ABI：%1$s</string>
+    <string name="report_settings">设置：</string>
+    <string name="report_mode">模式：%1$s</string>
+    <string name="report_ws_pool">WS 连接池：%1$d</string>
+    <string name="report_port">端口：%1$s</string>
+    <string name="report_recent_errors">最近错误：</string>
+
+    <!-- 更新弹窗 -->
+    <string name="update_new_tag_title">发现新标签</string>
+    <string name="update_available_title">有可用更新</string>
+    <string name="update_new_tag_description">GitHub 上有更新的标签 %1$s。看起来已发布的版本还没跟上。</string>
+    <string name="update_available_description">新版本 %1$s 已发布。你可以打开发布页面手动更新。</string>
+    <string name="update_action">更新</string>
+    <string name="later">稍后</string>
+    <string name="background_request_failed">无法请求后台工作</string>
+
+    <!-- 导航 -->
+    <string name="nav_proxy">代理</string>
+    <string name="nav_logs">日志</string>
+    <string name="invalid_port">端口无效</string>
+
+    <!-- 通知 -->
+    <string name="notification_starting">正在启动代理…</string>
+    <string name="notification_start_error_code">启动错误（代码：%1$d）</string>
+    <string name="notification_error">错误：%1$s</string>
+    <string name="notification_running">代理正在运行</string>
+    <string name="notification_not_responding">⚠ 代理无响应</string>
+    <string name="notification_traffic">流量：%1$s · %2$d 个会话</string>
+    <string name="notification_restarting">正在重启代理…</string>
+    <string name="notification_stopping">正在停止代理…</string>
+    <string name="notification_channel_name">后台代理</string>
+    <string name="notification_channel_description">代理服务器状态通知</string>
+    <string name="notification_restart">重启</string>
+    <string name="notification_disconnect">断开</string>
+
+    <!-- 快捷开关 -->
+    <string name="tile_connected">已连接</string>
+    <string name="tile_disconnected">已断开</string>
+
+    <!-- 更新间隔 -->
+    <string name="interval_7h">7 小时</string>
+    <string name="interval_24h">24 小时</string>
+    <string name="interval_48h">48 小时</string>
+    <string name="interval_never">从不</string>
+    <string name="interval_hours">%1$d 小时</string>
+    <string name="port_is_not_available">端口 %1$d 已被占用，请换一个</string>
+</resources>
