@@ -150,6 +150,6 @@
     <string name="open_client_error">Ошибка при открытии клиента</string>
     <string name="a11y_service_label">TG Proxy keep-alive</string>
     <string name="keepalive_a11y_desc">Последний вариант (как в GKD): служба привязана системой и восстанавливает процесс после свайпа. Без доступа к содержимому — только якорь.</string>
-    <string name="keepalive_a11y_ok">✓ Служба保活 включена</string>
-    <string name="keepalive_a11y_todo">✗ Служба保活 выключена (найдите «TG Proxy keep-alive» и включите)</string>
+    <string name="keepalive_a11y_ok">✓ Фоновая служба включена</string>
+    <string name="keepalive_a11y_todo">✗ Фоновая служба выключена (найдите «TG Proxy keep-alive» и включите)</string>
     <string name="keepalive_a11y_open">Открыть настройки спец. возможностей</string></resources>
