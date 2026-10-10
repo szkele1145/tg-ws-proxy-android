@@ -134,7 +134,7 @@ fun ConnectionTab(settingsStore: SettingsStore) {
 
     val isActiveVisual = isRunning || isStarting
     val logoElevation by animateDpAsState(
-        targetValue = if (isActiveVisual) 30.dp else 8.dp,
+        targetValue = if (isActiveVisual) 30.dp else 0.dp,
         animationSpec = tween(durationMillis = 500),
         label = "logo_elevation"
     )
