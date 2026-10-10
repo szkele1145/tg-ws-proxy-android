@@ -158,4 +158,8 @@
     <string name="keepalive_shizuku_need_auth">✗ 未授权，点下方按钮</string>
     <string name="keepalive_shizuku_not_running">✗ Shizuku 未运行，请打开 Shizuku 应用</string>
     <string name="keepalive_shizuku_not_installed">✗ 未安装 Shizuku</string>
-    <string name="keepalive_shizuku_result">应用结果：%1$s</string></resources>
+    <string name="keepalive_shizuku_result">应用结果：%1$s</string>    <string name="apply_mode_packages">软件包</string>
+    <string name="apply_mode_link">链接</string>
+    <string name="select_client">选择客户端</string>
+    <string name="open_client_error">打开客户端出错</string>
+</resources>
