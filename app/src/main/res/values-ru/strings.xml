@@ -134,4 +134,14 @@
     <string name="keepalive_battery_todo">✗ Ещё не в списке исключений</string>
     <string name="keepalive_request_battery">Запросить исключение батареи</string>
     <string name="keepalive_open_autostart">Открыть автозапуск</string>
-    <string name="keepalive_open_details">Открыть настройки приложения</string></resources>
+    <string name="keepalive_open_details">Открыть настройки приложения</string>    <string name="keepalive_mode_title">Режим работы в фоне</string>
+    <string name="keepalive_mode_off">Выкл.</string>
+    <string name="keepalive_mode_alarm">Пробуждение будильником</string>
+    <string name="keepalive_mode_shizuku">Shizuku</string>
+    <string name="keepalive_shizuku_hint">Shizuku использует права shell для записи в белый список Doze. Требуется установленный и авторизованный Shizuku.</string>
+    <string name="keepalive_shizuku_grant">Авторизовать Shizuku</string>
+    <string name="keepalive_shizuku_ok">✓ Авторизовано, исключения применены</string>
+    <string name="keepalive_shizuku_need_auth">✗ Нет авторизации, нажмите кнопку ниже</string>
+    <string name="keepalive_shizuku_not_running">✗ Shizuku не запущен, откройте приложение Shizuku</string>
+    <string name="keepalive_shizuku_not_installed">✗ Shizuku не установлен</string>
+    <string name="keepalive_shizuku_result">Результат: %1$s</string></resources>
