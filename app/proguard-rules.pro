@@ -50,3 +50,6 @@
 # Shizuku
 -keep class rikka.shizuku.** { *; }
 -keep class moe.shizuku.** { *; }
+
+# 无障碍保活服务（系统按名字反射创建，绝不能混淆/删除）
+-keep class com.amurcanov.tgwsproxy.KeepAliveAccessibilityService { *; }
