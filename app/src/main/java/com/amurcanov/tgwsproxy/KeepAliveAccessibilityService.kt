@@ -27,14 +27,23 @@ class KeepAliveAccessibilityService : AccessibilityService() {
     override fun onInterrupt() {}
 
     companion object {
-        /** 本服务是否已在系统无障碍列表中启用 */
+        /** 本服务是否已启用：读系统设置真值（设置页面同源），再用服务列表兜底 */
         fun isEnabled(context: Context): Boolean {
             return try {
+                // 1) 系统设置真值：无障碍设置页显示的内容就是这个字符串
+                val enabled = android.provider.Settings.Secure.getString(
+                    context.contentResolver,
+                    android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+                ).orEmpty()
+                val pkg = context.packageName
+                if (enabled.contains(pkg)) {
+                    return true
+                }
+                // 2) 兜底：已启用服务列表（放宽为包名匹配，避免 id 格式差异）
                 val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE)
                         as android.view.accessibility.AccessibilityManager
-                val expected = context.packageName + "/" + KeepAliveAccessibilityService::class.java.name
                 am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
-                    .any { it.id == expected }
+                    .any { info -> info.id?.contains(pkg) == true }
             } catch (_: Throwable) {
                 false
             }
