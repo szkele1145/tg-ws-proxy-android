@@ -153,4 +153,5 @@
     <string name="keepalive_a11y_desc">Last resort (same as GKD): the accessibility service is bound by the system, so it resurrects the process after swipe and revives the proxy. No privacy access, just an anchor.</string>
     <string name="keepalive_a11y_ok">✓ Accessibility keep-alive enabled</string>
     <string name="keepalive_a11y_todo">✗ Accessibility keep-alive not enabled (find "TG Proxy keep-alive" and enable)</string>
-    <string name="keepalive_a11y_open">Open accessibility settings</string></resources>
+    <string name="keepalive_a11y_open">Open accessibility settings</string>    <string name="ip_port_label">IP and Port</string>
+</resources>
