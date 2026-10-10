@@ -145,4 +145,8 @@
     <string name="keepalive_shizuku_need_auth">✗ Not authorized, tap the button below</string>
     <string name="keepalive_shizuku_not_running">✗ Shizuku is not running, open the Shizuku app</string>
     <string name="keepalive_shizuku_not_installed">✗ Shizuku is not installed</string>
-    <string name="keepalive_shizuku_result">Result: %1$s</string></resources>
+    <string name="keepalive_shizuku_result">Result: %1$s</string>    <string name="apply_mode_packages">Packages</string>
+    <string name="apply_mode_link">Link</string>
+    <string name="select_client">Choose a client</string>
+    <string name="open_client_error">Error opening client</string>
+</resources>
