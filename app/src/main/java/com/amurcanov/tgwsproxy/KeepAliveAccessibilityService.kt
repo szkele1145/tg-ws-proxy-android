@@ -3,7 +3,7 @@ package com.amurcanov.tgwsproxy
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityServiceInfo
+import android.accessibilityservice.AccessibilityServiceInfo
 
 /**
  * 保活锚点（GKD 同款原理）：
