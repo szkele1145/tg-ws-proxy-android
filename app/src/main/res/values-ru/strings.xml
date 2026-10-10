@@ -152,4 +152,5 @@
     <string name="keepalive_a11y_desc">Последний вариант (как в GKD): служба привязана системой и восстанавливает процесс после свайпа. Без доступа к содержимому — только якорь.</string>
     <string name="keepalive_a11y_ok">✓ Фоновая служба включена</string>
     <string name="keepalive_a11y_todo">✗ Фоновая служба выключена (найдите «TG Proxy keep-alive» и включите)</string>
-    <string name="keepalive_a11y_open">Открыть настройки спец. возможностей</string></resources>
+    <string name="keepalive_a11y_open">Открыть настройки спец. возможностей</string>    <string name="ip_port_label">IP и Порт</string>
+</resources>
