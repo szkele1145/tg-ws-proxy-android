@@ -13,29 +13,13 @@ import android.accessibilityservice.AccessibilityServiceInfo
 class KeepAliveAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
-        // 整个函数全兜底：任何异常都不能抛给系统，否则系统会撤销授权
-        try {
-            super.onServiceConnected()
-            android.util.Log.w("KeepAliveA11y", "service connected")
-            val app = applicationContext
-            Thread {
-                try {
-                    if (!ProxyService.isRunning.value) {
-                        android.util.Log.w("KeepAliveA11y", "rebind detected, reviving proxy")
-                        kotlinx.coroutines.runBlocking {
-                            ProxyController.startFromSavedSettings(app)
-                        }
-                        android.util.Log.w("KeepAliveA11y", "revive dispatched")
-                    } else {
-                        android.util.Log.w("KeepAliveA11y", "proxy already running")
-                    }
-                } catch (e: Throwable) {
-                    android.util.Log.w("KeepAliveA11y", "revive failed: " + e)
-                }
-            }.start()
-        } catch (t: Throwable) {
-            android.util.Log.w("KeepAliveA11y", "onServiceConnected failed: " + t)
-        }
+        // 被动锚点策略（对齐 GKD 的实际做法）：
+        // 系统绑定本服务 → 进程被拉起/保住 → 划掉时进程和前台服务都不死。
+        // 刻意【不】在这里启动前台服务：后台启 FGS 的异常路径一旦抛到主线程，
+        // 进程崩溃 → 系统重绑重试 → 连环崩溃 → 系统撤销本服务（正是之前"开了就弹回"的根因）。
+        // 代理若真被杀，由 onTaskRemoved 快速闹钟和 15 分钟周期闹钟负责复活。
+        super.onServiceConnected()
+        android.util.Log.w("KeepAliveA11y", "service connected (passive anchor)")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
