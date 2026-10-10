@@ -13,6 +13,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // Shizuku
+        maven("https://api.rikka.app")
     }
 }
 rootProject.name = "TgWsProxy"
