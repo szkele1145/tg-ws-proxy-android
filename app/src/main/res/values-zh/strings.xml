@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Telegram WS 代理</string>
+    <string name="app_name">TG 代理</string>
 
     <!-- 状态 -->
     <string name="status_connecting">连接中</string>
