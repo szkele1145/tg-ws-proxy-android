@@ -52,11 +52,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.amurcanov.tgwsproxy.ui.AppUpdateDialog
 import com.amurcanov.tgwsproxy.ui.ConnectionTab
-import com.amurcanov.tgwsproxy.ui.FloatingToolbar
-import com.amurcanov.tgwsproxy.ui.InfoTab
-import com.amurcanov.tgwsproxy.ui.LogsTab
 import com.amurcanov.tgwsproxy.ui.SettingsTab
 import com.amurcanov.tgwsproxy.ui.TgWsProxyTheme
 import com.amurcanov.tgwsproxy.ui.openUrlInBrowser
