@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.time.Duration.Companion.milliseconds
 import java.net.InetAddress
@@ -186,6 +187,18 @@ class ProxyService : Service() {
         acquireWakeLock()
         stopInProgress = false
         scheduleKeepaliveAlarm()
+        // Shizuku 模式：启动时用 shell 权限重新应用系统豁免（厂商系统会定期重置）
+        serviceScope.launch {
+            try {
+                val store = SettingsStore(this@ProxyService)
+                if (store.keepaliveMode.first() == "shizuku") {
+                    val r = ShizukuKeeper.applyElevation(this@ProxyService.packageName)
+                    Log.i(TAG, "Shizuku elevation on start: " + r)
+                }
+            } catch (e: Throwable) {
+                Log.w(TAG, "Shizuku elevation skipped", e)
+            }
+        }
         
         // Start Go proxy in a separate thread with error handling
         Thread({
