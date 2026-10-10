@@ -137,20 +137,6 @@ class MainActivity : ComponentActivity() {
                             Box {
                                 MainContent(settingsStore)
 
-                                FloatingToolbar(
-                                    currentTheme = themeMode,
-                                    onThemeChange = { mode ->
-                                        scope.launch { settingsStore.saveThemeMode(mode) }
-                                    },
-                                    isDynamicColor = isDynamicColor,
-                                    onDynamicColorChange = { dc ->
-                                        scope.launch { settingsStore.saveDynamicColor(dc) }
-                                    },
-                                    currentPalette = themePalette,
-                                    onPaletteChange = { pal ->
-                                        scope.launch { settingsStore.saveThemePalette(pal) }
-                                    }
-                                )
                             }
                         }
                     }
@@ -169,26 +155,10 @@ private data class NavItem(
 @Composable
 fun MainContent(settingsStore: SettingsStore) {
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
-    var dragTargetIndex by remember { mutableIntStateOf(-1) }
-    var dragProgress by remember { mutableFloatStateOf(0f) }
-    val context = LocalContext.current
     val density = LocalDensity.current
-    val scope = rememberCoroutineScope()
-    val updatePostponeUntil by settingsStore.updatePostponeUntil.collectAsStateWithLifecycle(initialValue = 0L)
-    val updatePostponeVersion by settingsStore.updatePostponeVersion.collectAsStateWithLifecycle(initialValue = "")
-    val updateCheckIntervalHours by settingsStore.updateCheckIntervalHours.collectAsStateWithLifecycle(
-        initialValue = UPDATE_CHECK_NEVER
-    )
-    val updateLastCheckAt by settingsStore.updateLastCheckAt.collectAsStateWithLifecycle(initialValue = 0L)
-    var pendingRelease by remember { mutableStateOf<AppReleaseInfo?>(null) }
-    val currentVersion = remember { "v${BuildConfig.VERSION_NAME.removePrefix("v")}" }
-    val currentUpdatePostponeUntil by rememberUpdatedState(updatePostponeUntil)
-    val currentUpdatePostponeVersion by rememberUpdatedState(updatePostponeVersion)
     val navItems = listOf(
         NavItem(stringResource(R.string.nav_proxy), Icons.Default.PowerSettingsNew),
-        NavItem(stringResource(R.string.settings), Icons.Default.Settings),
-        NavItem(stringResource(R.string.nav_logs), Icons.Default.Terminal),
-        NavItem(stringResource(R.string.info), Icons.Default.Info)
+        NavItem(stringResource(R.string.settings), Icons.Default.Settings)
     )
     val safeBottomInset = with(density) { WindowInsets.safeDrawing.getBottom(density).toDp() }
     val navOverlayReserve = safeBottomInset + 96.dp
@@ -196,49 +166,6 @@ fun MainContent(settingsStore: SettingsStore) {
     DisposableEffect(Unit) {
         LogManager.startListening()
         onDispose { LogManager.stopListening() }
-    }
-
-    LaunchedEffect(updateCheckIntervalHours, updateLastCheckAt) {
-        if (updateCheckIntervalHours == UPDATE_CHECK_NEVER) return@LaunchedEffect
-
-        val intervalMillis = updateIntervalHoursToMillis(updateCheckIntervalHours)
-            ?: updateIntervalHoursToMillis(DEFAULT_UPDATE_CHECK_INTERVAL_HOURS)
-            ?: 12L * 60L * 60L * 1000L
-
-        if (updateLastCheckAt > 0L) {
-            val nextCheckAt = updateLastCheckAt + intervalMillis
-            val now = System.currentTimeMillis()
-            if (nextCheckAt > now) {
-                delay(nextCheckAt - now)
-            }
-        }
-
-        if (!isActive) return@LaunchedEffect
-
-        val checkedAt = System.currentTimeMillis()
-        val release = fetchLatestReleaseInfo(currentVersion)
-        settingsStore.saveUpdateState(
-            lastCheckAt = checkedAt,
-            latestVersion = release?.versionTag ?: "",
-            error = if (release == null) context.getString(R.string.update_check_failed_short) else ""
-        )
-
-        if (release == null) {
-            Log.w("TgWsProxy", "[WARN] Update check: no release info, local=$currentVersion")
-        } else {
-            val hasUpdate = isNewerVersion(currentVersion, release.versionTag)
-            val isPostponed =
-                currentUpdatePostponeVersion == release.versionTag && checkedAt < currentUpdatePostponeUntil
-            Log.i(
-                "TgWsProxy",
-                "Update check: local=$currentVersion remote=${release.versionTag} newer=$hasUpdate postponed=$isPostponed"
-            )
-
-            if (hasUpdate && !isPostponed) {
-                settingsStore.saveUpdateDialogShown(release.versionTag, checkedAt)
-                pendingRelease = release
-            }
-        }
     }
 
     Scaffold(
@@ -249,45 +176,6 @@ fun MainContent(settingsStore: SettingsStore) {
             .fillMaxSize()
             .padding(padding)
             .consumeWindowInsets(padding)
-            .pointerInput(selectedTab) {
-                var totalDrag = 0f
-                detectHorizontalDragGestures(
-                    onDragStart = {
-                        totalDrag = 0f
-                        dragTargetIndex = -1
-                        dragProgress = 0f
-                    },
-                    onDragCancel = {
-                        dragTargetIndex = -1
-                        dragProgress = 0f
-                    },
-                    onDragEnd = {
-                        if (dragTargetIndex in navItems.indices && dragProgress >= 0.5f) {
-                            selectedTab = dragTargetIndex
-                        }
-                        dragTargetIndex = -1
-                        dragProgress = 0f
-                    }
-                ) { change, dragAmount ->
-                    change.consume()
-                    totalDrag += dragAmount
-                    if (abs(totalDrag) < 12f) {
-                        dragTargetIndex = -1
-                        dragProgress = 0f
-                        return@detectHorizontalDragGestures
-                    }
-
-                    val candidate = if (totalDrag < 0f) selectedTab + 1 else selectedTab - 1
-                    if (candidate !in navItems.indices) {
-                        dragTargetIndex = -1
-                        dragProgress = 0f
-                        return@detectHorizontalDragGestures
-                    }
-
-                    dragTargetIndex = candidate
-                    dragProgress = (abs(totalDrag) / 180f).coerceIn(0f, 1f)
-                }
-            }
         ) {
             AnimatedContent(
                 targetState = selectedTab,
@@ -301,61 +189,23 @@ fun MainContent(settingsStore: SettingsStore) {
             ) { page ->
                 when (page) {
                     0 -> ConnectionTab(settingsStore)
-                    1 -> SettingsTab(settingsStore)
-                    2 -> LogsTab(settingsStore)
-                    3 -> InfoTab(settingsStore)
+                    else -> SettingsTab(settingsStore)
                 }
             }
 
             ProxyNavigationBar(
                 navItems = navItems,
                 selectedTab = selectedTab,
-                dragTargetIndex = dragTargetIndex,
-                dragProgress = dragProgress,
+                dragTargetIndex = -1,
+                dragProgress = 0f,
                 onTabSelected = { index ->
                     selectedTab = index
-                    dragTargetIndex = -1
-                    dragProgress = 0f
                 },
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
     }
-
-    pendingRelease?.let { release ->
-        AppUpdateDialog(
-            release = release,
-            onPostpone = {
-                pendingRelease = null
-                Toast.makeText(context, context.getString(R.string.update_postponed_24h), Toast.LENGTH_SHORT).show()
-                scope.launch {
-                    val now = System.currentTimeMillis()
-                    settingsStore.saveUpdatePostpone(
-                        version = release.versionTag,
-                        until = now + 24L * 60L * 60L * 1000L
-                    )
-                    settingsStore.saveUpdateDialogAction(
-                        version = release.versionTag,
-                        action = UPDATE_DIALOG_ACTION_POSTPONED,
-                        actedAt = now
-                    )
-                }
-            },
-            onUpdate = {
-                pendingRelease = null
-                scope.launch {
-                    settingsStore.saveUpdateDialogAction(
-                        version = release.versionTag,
-                        action = UPDATE_DIALOG_ACTION_UPDATE,
-                        actedAt = System.currentTimeMillis()
-                    )
-                    openUrlInBrowser(context, release.releaseUrl)
-                }
-            }
-        )
-    }
 }
-
 @Composable
 private fun ProxyNavigationBar(
     navItems: List<NavItem>,
