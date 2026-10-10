@@ -117,10 +117,17 @@ class ProxyService : Service() {
                 restartProxy()
             }
             ACTION_KEEPALIVE -> {
-                // 闹钟唤醒：如果代理没跑，用保存的参数拉起来
+                // 闹钟唤醒：进程可能刚被杀（内存里的 lastXxx 已丢失），
+                // 配置持久化在 DataStore 里，用 ProxyController 完整重建
                 Log.w(TAG, "Keepalive alarm fired, isRunning=" + _isRunning.value)
-                if (!_isRunning.value && !stopInProgress && lastPort > 0 && lastSecretKey.isNotEmpty()) {
-                    startProxy(lastBindIp, lastPort, lastIps, lastPoolSize, lastCfEnabled, lastCfPriority, lastCfDomain, lastSecretKey)
+                if (!_isRunning.value && !stopInProgress) {
+                    serviceScope.launch {
+                        try {
+                            ProxyController.startFromSavedSettings(this@ProxyService)
+                        } catch (e: Throwable) {
+                            Log.w(TAG, "Keepalive restart failed", e)
+                        }
+                    }
                 }
                 scheduleKeepaliveAlarm()
             }
@@ -375,6 +382,26 @@ class ProxyService : Service() {
         }
     }
 
+    // 划掉任务后快速复活：1.5 秒后闹钟触发（与周期闹钟共用 requestCode，触发后由 handler 重新武装周期闹钟）
+    private fun scheduleQuickRevive() {
+        try {
+            val am = getSystemService(ALARM_SERVICE) as AlarmManager
+            val intent = Intent(this, ProxyService::class.java).apply { action = ACTION_KEEPALIVE }
+            val pi = PendingIntent.getService(
+                this, KEEPALIVE_REQUEST_CODE, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val triggerAt = SystemClock.elapsedRealtime() + 1500L
+            try {
+                am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pi)
+            } catch (e: SecurityException) {
+                am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pi)
+            }
+            Log.w(TAG, "Quick revive armed (+1.5s)")
+        } catch (e: Exception) {
+            Log.w(TAG, "scheduleQuickRevive failed", e)
+        }
+    }
     private fun restartProxy() {
         if (restartJob?.isActive == true) return
         if (lastPort <= 0 || lastSecretKey.isEmpty()) {
@@ -489,10 +516,10 @@ class ProxyService : Service() {
      */
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        if (_isRunning.value) {
-            Log.w(TAG, "onTaskRemoved: proxy is running, service stays alive")
-            // The service continues because stopWithTask=false in manifest
-            // No action needed — the service keeps running.
+        // 划掉任务：系统随后多半会杀进程，先武装 1.5 秒闹钟，死了也把自己拉回来
+        if (_isRunning.value && !stopInProgress) {
+            Log.w(TAG, "onTaskRemoved: arming quick revive alarm")
+            scheduleQuickRevive()
         }
     }
 
