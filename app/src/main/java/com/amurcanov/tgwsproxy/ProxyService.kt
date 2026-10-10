@@ -26,6 +26,10 @@ class ProxyService : Service() {
     private var wakeLock: PowerManager.WakeLock? = null
     private var statsJob: Job? = null
     private var restartJob: Job? = null
+
+    // 看门狗状态
+    private var watchdogFailCount = 0
+    private var lastWatchdogRestartAt = 0L
     private var lastNotificationContent: String = ""
     private var lastNotificationAtMs: Long = 0L
     private var notificationStartedAtMs: Long = 0L
@@ -63,6 +67,11 @@ class ProxyService : Service() {
         // Wakelock refresh interval (25 min, re-acquire before 30-min timeout)
         private const val WAKELOCK_TIMEOUT_MS = 30L * 60 * 1000
         private const val WAKELOCK_REFRESH_MS = 25L * 60 * 1000
+
+    // 看门狗：定期探测代理内核是否还活着，死了就自动拉起
+    private const val WATCHDOG_INTERVAL_MS = 60L * 1000      // 每 60 秒探测一次
+    private const val WATCHDOG_FAIL_THRESHOLD = 3            // 连续 3 次失败才判定死亡
+    private const val WATCHDOG_RESTART_COOLDOWN_MS = 120L * 1000  // 两次自动重启至少间隔 2 分钟
 
         // Stats/notification update interval
         private const val STATS_UPDATE_MS = 3_000L
