@@ -100,6 +100,19 @@
             </intent-filter>
         </service>
 
+        <!-- 保活锚点：无障碍服务由系统绑定，划掉后台后系统会重建进程 -->
+        <service
+            android:name="com.amurcanov.tgwsproxy.KeepAliveAccessibilityService"
+            android:exported="true"
+            android:label="@string/a11y_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
         <!-- Restart proxy after device reboot if it was running -->
         <receiver
             android:name="com.amurcanov.tgwsproxy.BootReceiver"
