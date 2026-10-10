@@ -51,6 +51,7 @@ fun ConnectionTab(settingsStore: SettingsStore) {
     val context = LocalContext.current
     val isRunning by ProxyService.isRunning.collectAsStateWithLifecycle()
     val isVerifiedRunning by ProxyService.isVerifiedRunning.collectAsStateWithLifecycle()
+    val trafficInfo by ProxyService.trafficText.collectAsStateWithLifecycle()
 
     val isReady by settingsStore.isReady.collectAsStateWithLifecycle(initialValue = false)
 
@@ -189,7 +190,7 @@ fun ConnectionTab(settingsStore: SettingsStore) {
                 .weight(1f),
             contentAlignment = Alignment.Center
         ) {
-            AppSectionCard(
+            HeroCard(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
@@ -272,6 +273,14 @@ fun ConnectionTab(settingsStore: SettingsStore) {
                             textAlign = TextAlign.Center
                         )
                     }
+                    if (isVerifiedRunning && trafficInfo.isNotEmpty()) {
+                        Text(
+                            text = trafficInfo,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -301,6 +310,13 @@ fun ConnectionTab(settingsStore: SettingsStore) {
                                 disabledContentColor = Color.White.copy(alpha = 0.55f)
                             )
                         ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_telegram_logo),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(Modifier.width(10.dp))
                             Text(
                                 stringResource(R.string.apply_in_telegram),
                                 style = MaterialTheme.typography.titleMedium,
@@ -538,6 +554,51 @@ private fun applyToTelegramPackages(context: Context, url: String) {
             context.startActivity(chooserIntent)
         } catch (e: Exception) {
             Toast.makeText(context, context.getString(R.string.open_client_error), Toast.LENGTH_SHORT).show()
+        }
+    }
+}
+@Composable
+private fun HeroCard(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    val colors = MaterialTheme.colorScheme
+    val gradient = remember {
+        Brush.verticalGradient(
+            listOf(
+                colors.primaryContainer.copy(alpha = 0.60f),
+                colors.surface.copy(alpha = 0.95f)
+            )
+        )
+    }
+    val borderBrush = remember {
+        Brush.horizontalGradient(
+            listOf(
+                colors.primary.copy(alpha = 0.60f),
+                colors.outlineVariant.copy(alpha = 0.20f)
+            )
+        )
+    }
+    Surface(
+        shape = RoundedCornerShape(32.dp),
+        color = Color.Transparent,
+        border = BorderStroke(1.dp, borderBrush),
+        shadowElevation = 14.dp,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(gradient, RoundedCornerShape(32.dp))
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                content()
+            }
         }
     }
 }
