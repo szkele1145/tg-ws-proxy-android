@@ -40,6 +40,7 @@ class SettingsStore(private val context: Context) {
         val CUSTOM_CF_DOMAIN_ENABLED = booleanPreferencesKey("custom_cf_domain_enabled")
         val CUSTOM_CF_DOMAIN = stringPreferencesKey("custom_cf_domain")
         val AUTO_START_ON_BOOT = booleanPreferencesKey("auto_start_on_boot")
+        val KEEPALIVE_MODE = stringPreferencesKey("keepalive_mode")
         val SECRET_KEY = stringPreferencesKey("secret_key")
         val LOG_SHOW_DEBUG = booleanPreferencesKey("log_show_debug")
         val LOG_SHOW_INFO = booleanPreferencesKey("log_show_info")
@@ -87,6 +88,7 @@ class SettingsStore(private val context: Context) {
     val customCfDomain: Flow<String> = context.dataStore.data.map { it[Keys.CUSTOM_CF_DOMAIN] ?: "" }
     val autoStartOnBoot: Flow<Boolean> = context.dataStore.data.map { it[Keys.AUTO_START_ON_BOOT] ?: false }
     val secretKey: Flow<String> = context.dataStore.data.map { it[Keys.SECRET_KEY] ?: "" }
+    val keepaliveMode: Flow<String> = context.dataStore.data.map { it[Keys.KEEPALIVE_MODE] ?: "alarm" }
 
     val logShowDebug: Flow<Boolean> = context.dataStore.data.map { it[Keys.LOG_SHOW_DEBUG] ?: false }
     val logShowInfo: Flow<Boolean> = context.dataStore.data.map { it[Keys.LOG_SHOW_INFO] ?: DEFAULT_LOG_SHOW_INFO }
@@ -145,6 +147,10 @@ class SettingsStore(private val context: Context) {
 
     suspend fun saveAutoStartOnBoot(enabled: Boolean) {
         context.dataStore.edit { it[Keys.AUTO_START_ON_BOOT] = enabled }
+    }
+
+    suspend fun saveKeepaliveMode(mode: String) {
+        context.dataStore.edit { it[Keys.KEEPALIVE_MODE] = mode }
     }
 
     suspend fun saveUpdatePostpone(version: String, until: Long) {
