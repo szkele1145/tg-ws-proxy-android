@@ -216,7 +216,7 @@ fun SettingsTab(settingsStore: SettingsStore) {
                     )
                 }
                 Text(
-                    "IP и Порт",
+                    stringResource(com.amurcanov.tgwsproxy.R.string.ip_port_label),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(start = 8.dp, bottom = 4.dp)
