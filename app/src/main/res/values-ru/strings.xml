@@ -144,4 +144,8 @@
     <string name="keepalive_shizuku_need_auth">✗ Нет авторизации, нажмите кнопку ниже</string>
     <string name="keepalive_shizuku_not_running">✗ Shizuku не запущен, откройте приложение Shizuku</string>
     <string name="keepalive_shizuku_not_installed">✗ Shizuku не установлен</string>
-    <string name="keepalive_shizuku_result">Результат: %1$s</string></resources>
+    <string name="keepalive_shizuku_result">Результат: %1$s</string>    <string name="apply_mode_packages">Пакеты</string>
+    <string name="apply_mode_link">Ссылка</string>
+    <string name="select_client">Выберите клиент</string>
+    <string name="open_client_error">Ошибка при открытии клиента</string>
+</resources>
