@@ -35,16 +35,10 @@ jobs:
           echo "sdk.dir=$SDK" > local.properties
           ./gradlew --version
 
-      - name: 生成签名用 keystore
+      - name: 配置签名（固定 keystore，跨构建签名一致，可覆盖升级免卸载）
         run: |
-          keytool -genkeypair -v \
-            -keystore release.keystore \
-            -alias tgws \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass tgws123456 \
-            -keypass tgws123456 \
-            -dname "CN=tgws-chs, OU=dev, O=dev, L=City, ST=State, C=CN"
-
+          if [ ! -f release.keystore ]; then echo "release.keystore missing!" && exit 1; fi
+          sha256sum release.keystore
           cat >> local.properties <<'EOF'
           KEYSTORE_FILE=../release.keystore
           KEYSTORE_PASSWORD=tgws123456
@@ -77,3 +71,4 @@ jobs:
           name: tgws-chs-apk-release
           path: app/build/outputs/apk/**/*.apk
           if-no-files-found: warn
+
