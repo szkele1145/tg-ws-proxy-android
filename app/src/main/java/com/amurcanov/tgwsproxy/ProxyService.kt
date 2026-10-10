@@ -51,6 +51,7 @@ class ProxyService : Service() {
         const val ACTION_START = "com.amurcanov.tgwsproxy.START"
         const val ACTION_STOP = "com.amurcanov.tgwsproxy.STOP"
         const val ACTION_RESTART = "com.amurcanov.tgwsproxy.RESTART"
+        const val ACTION_KEEPALIVE = "com.amurcanov.tgwsproxy.KEEPALIVE"
         const val EXTRA_BIND_IP = "EXTRA_BIND_IP"
         const val EXTRA_PORT = "EXTRA_PORT"
         const val EXTRA_IPS = "EXTRA_IPS"
