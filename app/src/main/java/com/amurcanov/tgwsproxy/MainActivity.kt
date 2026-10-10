@@ -109,7 +109,7 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
             val settingsStore = remember { SettingsStore(context) }
             val themeMode by settingsStore.themeMode
-                .collectAsStateWithLifecycle(initialValue = "system")
+                .collectAsStateWithLifecycle(initialValue = "dark")
             val isDynamicColor by settingsStore.isDynamicColor
                 .collectAsStateWithLifecycle(initialValue = true)
             val themePalette by settingsStore.themePalette
