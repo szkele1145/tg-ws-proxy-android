@@ -40,6 +40,14 @@
         android:theme="@style/Theme.TGWSPROXY"
         tools:targetApi="33">
         
+        <!-- Shizuku: 接收 Shizuku server 推送的 binder，缺了它 Shizuku 永远"未运行" -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
         <activity
             android:name="com.amurcanov.tgwsproxy.MainActivity"
             android:exported="true"
@@ -50,6 +58,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Shizuku: 接收 Shizuku server 推送的 binder，缺了它 Shizuku 永远"未运行" -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
         <activity
             android:name="com.amurcanov.tgwsproxy.ProxyTilePreferencesActivity"
