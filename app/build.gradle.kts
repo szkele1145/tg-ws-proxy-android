@@ -145,4 +145,8 @@ dependencies {
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.appcompat:appcompat:1.6.1")
+
+    // Shizuku: 免 root shell 权限，用于保活
+    implementation("dev.rikka.shizuku:api:13.1.5")
+    implementation("dev.rikka.shizuku:provider:13.1.5")
 }
