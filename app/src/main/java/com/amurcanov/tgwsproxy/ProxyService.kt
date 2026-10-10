@@ -54,6 +54,9 @@ class ProxyService : Service() {
         const val ACTION_STOP = "com.amurcanov.tgwsproxy.STOP"
         const val ACTION_RESTART = "com.amurcanov.tgwsproxy.RESTART"
         const val ACTION_KEEPALIVE = "com.amurcanov.tgwsproxy.KEEPALIVE"
+        // 闹钟唤醒间隔：Service 被杀后靠系统闹钟叫醒
+        private const val KEEPALIVE_INTERVAL_MS = 15L * 60 * 1000
+        private const val KEEPALIVE_REQUEST_CODE = 8801
         const val EXTRA_BIND_IP = "EXTRA_BIND_IP"
         const val EXTRA_PORT = "EXTRA_PORT"
         const val EXTRA_IPS = "EXTRA_IPS"
@@ -111,6 +114,14 @@ class ProxyService : Service() {
             }
             ACTION_RESTART -> {
                 restartProxy()
+            }
+            ACTION_KEEPALIVE -> {
+                // 闹钟唤醒：如果代理没跑，用保存的参数拉起来
+                Log.w(TAG, "Keepalive alarm fired, isRunning=" + _isRunning.value)
+                if (!_isRunning.value && !stopInProgress && lastPort > 0 && lastSecretKey.isNotEmpty()) {
+                    startProxy(lastBindIp, lastPort, lastIps, lastPoolSize, lastCfEnabled, lastCfPriority, lastCfDomain, lastSecretKey)
+                }
+                scheduleKeepaliveAlarm()
             }
             null -> {
                 // Service restarted by system after being killed (START_REDELIVER_INTENT)
@@ -174,6 +185,7 @@ class ProxyService : Service() {
 
         acquireWakeLock()
         stopInProgress = false
+        scheduleKeepaliveAlarm()
         
         // Start Go proxy in a separate thread with error handling
         Thread({
@@ -313,6 +325,37 @@ class ProxyService : Service() {
         }
     }
 
+    // 设置定时闹钟，即使 Service 被系统杀掉，闹钟也会把进程唤起来
+    private fun scheduleKeepaliveAlarm() {
+        try {
+            val am = getSystemService(ALARM_SERVICE) as AlarmManager
+            val intent = Intent(this, ProxyService::class.java).apply { action = ACTION_KEEPALIVE }
+            val pi = PendingIntent.getService(
+                this, KEEPALIVE_REQUEST_CODE, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val triggerAt = SystemClock.elapsedRealtime() + KEEPALIVE_INTERVAL_MS
+            // setExactAndAllowWhileIdle：Doze 下也尽量准点
+            am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pi)
+        } catch (e: Exception) {
+            Log.w(TAG, "scheduleKeepaliveAlarm failed", e)
+        }
+    }
+
+    private fun cancelKeepaliveAlarm() {
+        try {
+            val am = getSystemService(ALARM_SERVICE) as AlarmManager
+            val intent = Intent(this, ProxyService::class.java).apply { action = ACTION_KEEPALIVE }
+            val pi = PendingIntent.getService(
+                this, KEEPALIVE_REQUEST_CODE, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            am.cancel(pi)
+        } catch (e: Exception) {
+            Log.w(TAG, "cancelKeepaliveAlarm failed", e)
+        }
+    }
+
     private fun restartProxy() {
         if (restartJob?.isActive == true) return
         if (lastPort <= 0 || lastSecretKey.isEmpty()) {
@@ -374,6 +417,8 @@ class ProxyService : Service() {
     private fun stopProxy() {
         if (stopInProgress) return
         stopInProgress = true
+        // 用户主动停止：取消闹钟，否则15分钟后会把已停的代理拉起来
+        cancelKeepaliveAlarm()
         restartJob?.cancel()
         restartJob = null
         statsJob?.cancel()
@@ -569,3 +614,5 @@ class ProxyService : Service() {
         return null
     }
 }
+
+
