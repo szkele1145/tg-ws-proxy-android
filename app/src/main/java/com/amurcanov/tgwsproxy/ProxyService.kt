@@ -335,8 +335,14 @@ class ProxyService : Service() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             val triggerAt = SystemClock.elapsedRealtime() + KEEPALIVE_INTERVAL_MS
-            // setExactAndAllowWhileIdle：Doze 下也尽量准点
-            am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pi)
+            try {
+                // 精确闹钟：Doze 下也尽量准点（需要 SCHEDULE_EXACT_ALARM，失败则降级）
+                am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pi)
+            } catch (e: SecurityException) {
+                // Android 13+ 未授权精确闹钟：降级为宽松闹钟，仍然会触发
+                Log.w(TAG, "Exact alarm denied, falling back to inexact")
+                am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pi)
+            }
         } catch (e: Exception) {
             Log.w(TAG, "scheduleKeepaliveAlarm failed", e)
         }
