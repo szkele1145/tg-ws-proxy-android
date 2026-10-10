@@ -166,4 +166,5 @@
     <string name="keepalive_a11y_desc">最后一招（GKD 同款）：无障碍服务由系统绑定，划掉后台后系统会自动重建进程，顺带把代理拉起来。无隐私读取，只是个复活锚点。</string>
     <string name="keepalive_a11y_ok">✓ 无障碍保活已启用</string>
     <string name="keepalive_a11y_todo">✗ 无障碍保活未启用（去列表打开「TG 代理保活」）</string>
-    <string name="keepalive_a11y_open">打开无障碍设置</string></resources>
+    <string name="keepalive_a11y_open">打开无障碍设置</string>    <string name="ip_port_label">IP 和端口</string>
+</resources>
