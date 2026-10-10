@@ -135,4 +135,14 @@
     <string name="keepalive_request_battery">Request ignore battery optimizations</string>
     <string name="keepalive_open_autostart">Open autostart manager</string>
     <string name="keepalive_open_details">Open app details settings</string>
-</resources>
+    <string name="keepalive_mode_title">Keep-alive mode</string>
+    <string name="keepalive_mode_off">Off</string>
+    <string name="keepalive_mode_alarm">Alarm wakeup</string>
+    <string name="keepalive_mode_shizuku">Shizuku enhanced</string>
+    <string name="keepalive_shizuku_hint">Shizuku mode uses shell rights to force Doze whitelist and background exemptions. Requires the Shizuku app to be installed and authorized.</string>
+    <string name="keepalive_shizuku_grant">Authorize Shizuku and apply</string>
+    <string name="keepalive_shizuku_ok">✓ Authorized, system exemptions applied</string>
+    <string name="keepalive_shizuku_need_auth">✗ Not authorized, tap the button below</string>
+    <string name="keepalive_shizuku_not_running">✗ Shizuku is not running, open the Shizuku app</string>
+    <string name="keepalive_shizuku_not_installed">✗ Shizuku is not installed</string>
+    <string name="keepalive_shizuku_result">Result: %1$s</string></resources>
