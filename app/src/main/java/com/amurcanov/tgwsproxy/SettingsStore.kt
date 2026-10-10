@@ -64,7 +64,7 @@ class SettingsStore(private val context: Context) {
 
     val isReady: Flow<Boolean> = context.dataStore.data.map { true }
     val isExperimentalMode: Flow<Boolean> = context.dataStore.data.map { it[Keys.IS_EXPERIMENTAL_MODE] ?: false }
-    val themeMode: Flow<String> = context.dataStore.data.map { it[Keys.THEME_MODE] ?: "system" }
+    val themeMode: Flow<String> = context.dataStore.data.map { it[Keys.THEME_MODE] ?: "dark" }
     val isDynamicColor: Flow<Boolean> = context.dataStore.data.map { it[Keys.IS_DYNAMIC_COLOR] ?: true }
     val themePalette: Flow<String> = context.dataStore.data.map { it[Keys.THEME_PALETTE] ?: "indigo" }
     val isDcAuto: Flow<Boolean> = context.dataStore.data.map { it[Keys.IS_DC_AUTO] ?: true }
@@ -178,6 +178,11 @@ class SettingsStore(private val context: Context) {
     suspend fun migrateLegacyDefaults() {
         context.dataStore.edit {
             if (it[Keys.DIRECT_DC_DEFAULTS_V2_MIGRATED] == true) return@edit
+
+            // 本 fork 固定深色风格（主题切换工具栏已移除）
+            if (it[Keys.THEME_MODE] != "dark") {
+                it[Keys.THEME_MODE] = "dark"
+            }
 
             val dc2 = it[Keys.DC2].orEmpty().trim()
             if (dc2.isBlank() || dc2 == LEGACY_DIRECT_DC_IP) {
