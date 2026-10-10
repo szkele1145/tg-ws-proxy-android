@@ -46,3 +46,7 @@
 -keepclasseswithmembernames class * {
     native <methods>;
 }
+
+# Shizuku
+-keep class rikka.shizuku.** { *; }
+-keep class moe.shizuku.** { *; }
