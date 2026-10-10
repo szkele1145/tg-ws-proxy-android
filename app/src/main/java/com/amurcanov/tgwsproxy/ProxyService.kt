@@ -68,7 +68,7 @@ class ProxyService : Service() {
         const val EXTRA_SECRET_KEY = "EXTRA_SECRET_KEY"
         
         private const val NOTIFICATION_ID = 101
-        private const val CHANNEL_ID = "TG_WS_Proxy_Service_v4"
+        private const val CHANNEL_ID = "TG_WS_Proxy_Service_v5"
         private const val TAG = "ProxyService"
 
         // Wakelock refresh interval (25 min, re-acquire before 30-min timeout)
@@ -561,7 +561,7 @@ class ProxyService : Service() {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
                 getString(R.string.notification_channel_name),
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_MIN
             ).apply {
                 description = getString(R.string.notification_channel_description)
                 setShowBadge(false)
@@ -598,7 +598,7 @@ class ProxyService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Telegram WS Proxy")
+            .setContentTitle(getString(R.string.app_name))
             .setContentText(content)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(openPendingIntent) // Tap notification → open app
