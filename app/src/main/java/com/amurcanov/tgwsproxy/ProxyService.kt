@@ -232,6 +232,46 @@ class ProxyService : Service() {
                 }
             }
 
+            // 看门狗子任务：定期探测内核存活，异常时自动重启
+            launch {
+                while (isActive) {
+                    delay(WATCHDOG_INTERVAL_MS.milliseconds)
+                    if (!_isRunning.value || stopInProgress) {
+                        watchdogFailCount = 0
+                        continue
+                    }
+                    val alive = try {
+                        val s = NativeProxy.getStats()
+                        !s.isNullOrBlank()
+                    } catch (e: Throwable) {
+                        Log.w(TAG, "Watchdog probe failed", e)
+                        false
+                    }
+
+                    if (alive) {
+                        if (watchdogFailCount > 0) {
+                            Log.i(TAG, "Watchdog: proxy recovered, reset counter")
+                        }
+                        watchdogFailCount = 0
+                    } else {
+                        watchdogFailCount++
+                        Log.w(TAG, "Watchdog: probe failed ($watchdogFailCount/$WATCHDOG_FAIL_THRESHOLD)")
+
+                        if (watchdogFailCount >= WATCHDOG_FAIL_THRESHOLD) {
+                            val now = System.currentTimeMillis()
+                            if (now - lastWatchdogRestartAt >= WATCHDOG_RESTART_COOLDOWN_MS) {
+                                lastWatchdogRestartAt = now
+                                watchdogFailCount = 0
+                                Log.w(TAG, "Watchdog: proxy seems dead, restarting")
+                                restartProxy()
+                            } else {
+                                Log.w(TAG, "Watchdog: dead but in cooldown, skipping restart")
+                            }
+                        }
+                    }
+                }
+            }
+
             while (isActive) {
                 delay(STATS_UPDATE_MS.milliseconds)
                 if (_isRunning.value && !stopInProgress) {
