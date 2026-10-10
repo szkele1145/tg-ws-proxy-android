@@ -148,4 +148,14 @@
     <string name="keepalive_battery_todo">✗ 尚未加入电池优化白名单</string>
     <string name="keepalive_request_battery">请求忽略电池优化</string>
     <string name="keepalive_open_autostart">打开自启动管理</string>
-    <string name="keepalive_open_details">打开应用详情设置</string></resources>
+    <string name="keepalive_open_details">打开应用详情设置</string>    <string name="keepalive_mode_title">保活模式</string>
+    <string name="keepalive_mode_off">关闭</string>
+    <string name="keepalive_mode_alarm">闹钟唤醒</string>
+    <string name="keepalive_mode_shizuku">Shizuku 增强</string>
+    <string name="keepalive_shizuku_hint">Shizuku 模式会用 shell 权限强制写入 Doze 白名单和后台豁免。需先安装 Shizuku 并授权。</string>
+    <string name="keepalive_shizuku_grant">授权 Shizuku 并应用</string>
+    <string name="keepalive_shizuku_ok">✓ 已授权，系统豁免已应用</string>
+    <string name="keepalive_shizuku_need_auth">✗ 未授权，点下方按钮</string>
+    <string name="keepalive_shizuku_not_running">✗ Shizuku 未运行，请打开 Shizuku 应用</string>
+    <string name="keepalive_shizuku_not_installed">✗ 未安装 Shizuku</string>
+    <string name="keepalive_shizuku_result">应用结果：%1$s</string></resources>
