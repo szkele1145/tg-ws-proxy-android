@@ -509,9 +509,24 @@ fun SettingsTab(settingsStore: SettingsStore) {
                                 ShizukuKeeper.probe(context)
                             }
                         }
-                        try { Shizuku.addRequestPermissionResultListener(listener) } catch (_: Throwable) {}
+                        // binder 异步到达（provider 收到 server 推送）→ 自动刷新状态
+                        val onBinder: Shizuku.OnBinderReceivedListener = Shizuku.OnBinderReceivedListener {
+                            shizukuState = ShizukuKeeper.probe(context)
+                        }
+                        val onDead: Shizuku.OnBinderDeadListener = Shizuku.OnBinderDeadListener {
+                            shizukuState = ShizukuKeeper.probe(context)
+                        }
+                        try {
+                            Shizuku.addRequestPermissionResultListener(listener)
+                            Shizuku.addBinderReceivedListenerSticky(onBinder)
+                            Shizuku.addBinderDeadListener(onDead)
+                        } catch (_: Throwable) {}
                         onDispose {
-                            try { Shizuku.removeRequestPermissionResultListener(listener) } catch (_: Throwable) {}
+                            try {
+                                Shizuku.removeRequestPermissionResultListener(listener)
+                                Shizuku.removeBinderReceivedListener(onBinder)
+                                Shizuku.removeBinderDeadListener(onDead)
+                            } catch (_: Throwable) {}
                         }
                     }
 
