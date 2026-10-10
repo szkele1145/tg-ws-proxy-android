@@ -87,6 +87,8 @@ class ProxyService : Service() {
 
         private val _isRunning = MutableStateFlow(false)
         val isRunning: StateFlow<Boolean> = _isRunning
+    private val _trafficText = MutableStateFlow("")
+    val trafficText: StateFlow<String> = _trafficText
         private val _isVerifiedRunning = MutableStateFlow(false)
         val isVerifiedRunning: StateFlow<Boolean> = _isVerifiedRunning
     }
@@ -319,6 +321,7 @@ class ProxyService : Service() {
                         val totalBytes = parseHumanBytes(upRaw) + parseHumanBytes(downRaw)
                         val active = activeConns.toIntOrNull() ?: 0
                         val text = getString(R.string.notification_traffic, formatBytes(totalBytes), active)
+                        _trafficText.value = text
                         updateNotification(text)
                     } catch (e: Exception) {
                         Log.w(TAG, "Stats update failed", e)
@@ -577,6 +580,7 @@ class ProxyService : Service() {
 
     private fun updateRunningState(isRunning: Boolean) {
         _isRunning.value = isRunning
+        if (!isRunning) { _trafficText.value = "" }
         if (!isRunning) {
             _isVerifiedRunning.value = false
         }
