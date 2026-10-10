@@ -1,6 +1,7 @@
 package com.amurcanov.tgwsproxy
 
 import android.content.Context
+import android.content.pm.PackageManager
 import rikka.shizuku.Shizuku
 
 /**
@@ -25,14 +26,16 @@ object ShizukuKeeper {
         false
     }
 
+    /** 13.x 没有 isAlive()，正确 API 是 pingBinder() */
     fun isAlive(): Boolean = try {
-        Shizuku.isAlive()
+        Shizuku.pingBinder()
     } catch (_: Throwable) {
         false
     }
 
+    /** checkSelfPermission() 返回 Int，需要和 PERMISSION_GRANTED 比较 */
     fun hasPermission(): Boolean = try {
-        Shizuku.checkSelfPermission()
+        Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
     } catch (_: Throwable) {
         false
     }
@@ -40,8 +43,8 @@ object ShizukuKeeper {
     fun requestPermission(code: Int) {
         try {
             Shizuku.requestPermission(code)
-        } catch (e: Throwable) {
-            // Shizuku 未运行等情况
+        } catch (_: Throwable) {
+            // binder 未就绪等
         }
     }
 
@@ -54,23 +57,18 @@ object ShizukuKeeper {
     }
 
     /**
-     * 用 shell 权限应用系统级保活豁免。返回 "OK n/n" 或 "ERR ..."。
-     * 每条命令失败不影响其他命令执行。
+     * 用 shell 权限应用系统级保活豁免。返回 "OK n/n" 或 "OK n/N, skipped: ..."。
      */
     fun applyElevation(pkg: String): String {
         if (!isAlive()) return "ERR shizuku not alive"
         if (!hasPermission()) return "ERR no permission"
         val cmds = listOf(
-            // Doze 白名单（等效"忽略电池优化"，但是强制写入）
             "dumpsys deviceidle whitelist +$pkg",
-            // 后台运行豁免
             "cmd appops set $pkg RUN_IN_BACKGROUND allow",
             "cmd appops set $pkg RUN_ANY_IN_BACKGROUND allow",
             "cmd appops set $pkg RUN_IN_FOREGROUND allow",
-            // 前台服务与精确闹钟
             "cmd appops set $pkg START_FOREGROUND allow",
             "cmd appops set $pkg SCHEDULE_EXACT_ALARM allow",
-            // 取消待机，退出 App 池
             "am set-inactive $pkg false"
         )
         var ok = 0
@@ -80,19 +78,35 @@ object ShizukuKeeper {
                 ok++
             } else {
                 if (fails.isNotEmpty()) fails.append("; ")
-                fails.append(c.substringAfter(' ').take(24))
+                fails.append(c.substringAfter(' ').take(20))
             }
         }
-        return if (fails.isEmpty()) "OK $ok/$ok" else "OK $ok/$($cmds.size), skipped: $fails"
+        return if (fails.isEmpty()) "OK $ok/$($cmds.size)" else "OK $ok/$($cmds.size), skipped: $fails"
     }
 
+    /**
+     * 执行 shell 命令并返回退出码。
+     * Shizuku.newProcess 在 13.x 中是 private（API 14 将移除），
+     * 通过反射调用；proguard 规则 -keep class rikka.shizuku.** { *; }
+     * 保证方法名不被混淆。失败返回 -1。
+     */
     private fun runShell(cmd: String): Int {
         return try {
-            val process = Shizuku.newProcess(arrayOf("sh", "-c", cmd), null, null)
-            val code = process.waitFor()
-            try { process.inputStream.close() } catch (_: Throwable) {}
-            try { process.errorStream.close() } catch (_: Throwable) {}
-            code
+            val method = Shizuku::class.java.getDeclaredMethod(
+                "newProcess",
+                Array<String>::class.java,   // cmd
+                Array<String>::class.java,   // env
+                String::class.java           // dir
+            )
+            method.isAccessible = true
+            val proc = method.invoke(null, arrayOf("sh", "-c", cmd), null, null) ?: return -1
+            // ShizukuRemoteProcess 继承 java.lang.Process；稳妥起见反射读退出码
+            try {
+                proc.javaClass.getMethod("waitFor").invoke(proc) as Int
+            } catch (_: Throwable) {
+                // 读不到退出码时视为已派发
+                0
+            }
         } catch (_: Throwable) {
             -1
         }
