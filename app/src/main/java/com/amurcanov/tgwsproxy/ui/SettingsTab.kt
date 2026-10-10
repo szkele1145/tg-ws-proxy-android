@@ -296,7 +296,11 @@ fun SettingsTab(settingsStore: SettingsStore) {
                 }
             }
 
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        AppSectionCard {
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -330,7 +334,6 @@ fun SettingsTab(settingsStore: SettingsStore) {
                 }
             }
 
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -380,7 +383,11 @@ fun SettingsTab(settingsStore: SettingsStore) {
                 )
             }
 
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        AppSectionCard {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
