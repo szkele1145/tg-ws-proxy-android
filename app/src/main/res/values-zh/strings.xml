@@ -167,4 +167,12 @@
     <string name="keepalive_a11y_ok">✓ 无障碍保活已启用</string>
     <string name="keepalive_a11y_todo">✗ 无障碍保活未启用（去列表打开「TG 代理保活」）</string>
     <string name="keepalive_a11y_open">打开无障碍设置</string>    <string name="ip_port_label">IP 和端口</string>
-</resources>
+    <string name="support_development"></string>
+    <string name="support_project"></string>
+    <string name="support_title"></string>
+    <string name="support_subtitle"></string>
+    <string name="open_donation_options"></string>
+    <string name="donate_developers"></string>
+    <string name="close">关闭</string>
+    <string name="donate_android_author"></string>
+    <string name="donate_original_author"></string></resources>
