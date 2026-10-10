@@ -37,6 +37,9 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.amurcanov.tgwsproxy.ProxyService
 import com.amurcanov.tgwsproxy.SettingsStore
+import com.amurcanov.tgwsproxy.ShizukuKeeper
+import rikka.shizuku.Shizuku
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -91,6 +94,7 @@ fun SettingsTab(settingsStore: SettingsStore) {
     val savedCustomDomainEnabled by settingsStore.customCfDomainEnabled.collectAsStateWithLifecycle(initialValue = false)
     val savedCustomDomain by settingsStore.customCfDomain.collectAsStateWithLifecycle(initialValue = "")
     val autoStartOnBoot by settingsStore.autoStartOnBoot.collectAsStateWithLifecycle(initialValue = false)
+    val savedKeepaliveMode by settingsStore.keepaliveMode.collectAsStateWithLifecycle(initialValue = "alarm")
     val savedSecretKey by settingsStore.secretKey.collectAsStateWithLifecycle(initialValue = "LOADING")
 
     if (!isReady) {
@@ -467,9 +471,99 @@ fun SettingsTab(settingsStore: SettingsStore) {
                     lineHeight = 16.sp
                 )
 
-                var batteryOk by remember { mutableStateOf(BatteryHelper.isIgnoringBatteryOptimizations(context)) }
+                Text(
+                    stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_mode_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
 
-                // 刷新状态：从系统设置返回后重新检测
+                listOf(
+                    "off" to com.amurcanov.tgwsproxy.R.string.keepalive_mode_off,
+                    "alarm" to com.amurcanov.tgwsproxy.R.string.keepalive_mode_alarm,
+                    "shizuku" to com.amurcanov.tgwsproxy.R.string.keepalive_mode_shizuku
+                ).forEach { item ->
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                        RadioButton(
+                            selected = savedKeepaliveMode == item.first,
+                            onClick = { scope.launch { settingsStore.saveKeepaliveMode(item.first) } }
+                        )
+                        Text(
+                            stringResource(item.second),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                }
+
+                if (savedKeepaliveMode == "shizuku") {
+                    var shizukuState by remember { mutableStateOf(ShizukuKeeper.probe(context)) }
+                    var shizukuResult by remember { mutableStateOf("") }
+
+                    DisposableEffect(Unit) {
+                        val listener = Shizuku.OnRequestPermissionResultListener { _, grantResult ->
+                            shizukuState = if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                                ShizukuKeeper.STATE_OK
+                            } else {
+                                ShizukuKeeper.probe(context)
+                            }
+                        }
+                        try { Shizuku.addRequestPermissionResultListener(listener) } catch (_: Throwable) {}
+                        onDispose {
+                            try { Shizuku.removeRequestPermissionResultListener(listener) } catch (_: Throwable) {}
+                        }
+                    }
+
+                    Text(
+                        stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_shizuku_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 16.sp
+                    )
+
+                    val stateRes = when (shizukuState) {
+                        ShizukuKeeper.STATE_OK -> com.amurcanov.tgwsproxy.R.string.keepalive_shizuku_ok
+                        ShizukuKeeper.STATE_NEED_AUTH -> com.amurcanov.tgwsproxy.R.string.keepalive_shizuku_need_auth
+                        ShizukuKeeper.STATE_NOT_RUNNING -> com.amurcanov.tgwsproxy.R.string.keepalive_shizuku_not_running
+                        else -> com.amurcanov.tgwsproxy.R.string.keepalive_shizuku_not_installed
+                    }
+                    Text(
+                        stringResource(stateRes),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (shizukuState == ShizukuKeeper.STATE_OK) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    if (shizukuResult.isNotEmpty()) {
+                        Text(
+                            stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_shizuku_result, shizukuResult),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            val st = ShizukuKeeper.probe(context)
+                            shizukuState = st
+                            if (st == ShizukuKeeper.STATE_NEED_AUTH) {
+                                ShizukuKeeper.requestPermission(ShizukuKeeper.PERMISSION_REQUEST_CODE)
+                            } else if (st == ShizukuKeeper.STATE_OK) {
+                                scope.launch(Dispatchers.IO) {
+                                    shizukuResult = ShizukuKeeper.applyElevation(context.packageName)
+                                }
+                            }
+                        },
+                        enabled = shizukuState != ShizukuKeeper.STATE_NOT_INSTALLED && shizukuState != ShizukuKeeper.STATE_NOT_RUNNING,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(24.dp)
+                    ) {
+                        Text(stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_shizuku_grant))
+                    }
+                }
+
+                var batteryOk by remember { mutableStateOf(BatteryHelper.isIgnoringBatteryOptimizations(context)) }
                 androidx.compose.runtime.LaunchedEffect(Unit) {
                     batteryOk = BatteryHelper.isIgnoringBatteryOptimizations(context)
                 }
