@@ -25,8 +25,8 @@ android {
     productFlavors {
         create("arm32") {
             dimension = "arch"
-            // Shizuku provider 要求 23，同步提升（放弃 Android 5.0/5.1）
-            minSdk = 23
+            // Shizuku 13.1.5 要求 24
+            minSdk = 24
             ndk {
                 abiFilters.clear()
                 abiFilters.add("armeabi-v7a")
@@ -42,8 +42,8 @@ android {
         }
         create("universal") {
             dimension = "arch"
-            // Shizuku provider 要求 23，同步提升
-            minSdk = 23
+            // Shizuku 13.1.5 要求 24
+            minSdk = 24
             ndk {
                 abiFilters.clear()
                 abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
