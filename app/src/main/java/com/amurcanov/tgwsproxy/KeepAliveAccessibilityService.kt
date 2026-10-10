@@ -13,23 +13,29 @@ import android.accessibilityservice.AccessibilityServiceInfo
 class KeepAliveAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
-        super.onServiceConnected()
-        val app = applicationContext
-        Thread {
-            try {
-                if (!ProxyService.isRunning.value) {
-                    android.util.Log.w("KeepAliveA11y", "rebind detected, reviving proxy")
-                    kotlinx.coroutines.runBlocking {
-                        ProxyController.startFromSavedSettings(app)
+        // 整个函数全兜底：任何异常都不能抛给系统，否则系统会撤销授权
+        try {
+            super.onServiceConnected()
+            android.util.Log.w("KeepAliveA11y", "service connected")
+            val app = applicationContext
+            Thread {
+                try {
+                    if (!ProxyService.isRunning.value) {
+                        android.util.Log.w("KeepAliveA11y", "rebind detected, reviving proxy")
+                        kotlinx.coroutines.runBlocking {
+                            ProxyController.startFromSavedSettings(app)
+                        }
+                        android.util.Log.w("KeepAliveA11y", "revive dispatched")
+                    } else {
+                        android.util.Log.w("KeepAliveA11y", "proxy already running")
                     }
-                    android.util.Log.w("KeepAliveA11y", "revive dispatched")
-                } else {
-                    android.util.Log.w("KeepAliveA11y", "service connected, proxy already running")
+                } catch (e: Throwable) {
+                    android.util.Log.w("KeepAliveA11y", "revive failed: " + e)
                 }
-            } catch (e: Throwable) {
-                android.util.Log.w("KeepAliveA11y", "revive failed: " + e)
-            }
-        }.start()
+            }.start()
+        } catch (t: Throwable) {
+            android.util.Log.w("KeepAliveA11y", "onServiceConnected failed: " + t)
+        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
