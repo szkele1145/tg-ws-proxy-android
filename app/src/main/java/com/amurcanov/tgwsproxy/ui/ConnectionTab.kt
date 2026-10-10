@@ -24,6 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.Path
@@ -101,7 +104,10 @@ fun ConnectionTab(settingsStore: SettingsStore) {
         if (raw.isNotEmpty() && raw != "LOADING") raw else "00000000000000000000000000000000"
     }
     val bindIp = savedBindIp.trim().takeIf { it.isNotEmpty() } ?: "127.0.0.1"
-    val proxyUrl = "https://t.me/proxy?server=$bindIp&port=$port&secret=dd$secretForUrl"
+    // Telegram 客户端无法连接 0.0.0.0 / ::，分享链接时映射为回环地址
+    val urlIp = if (bindIp == "0.0.0.0" || bindIp == "::") "127.0.0.1" else bindIp
+    val proxyUrl = "https://t.me/proxy?server=$urlIp&port=$port&secret=dd$secretForUrl"
+    val tgGradient = remember { Brush.horizontalGradient(listOf(Color(0xFF2AABEE), Color(0xFF229ED9))) }
     
     var applyMode by rememberSaveable { mutableStateOf("packages") }
 
@@ -127,6 +133,11 @@ fun ConnectionTab(settingsStore: SettingsStore) {
     }
 
     val isActiveVisual = isRunning || isStarting
+    val logoElevation by animateDpAsState(
+        targetValue = if (isActiveVisual) 30.dp else 8.dp,
+        animationSpec = tween(durationMillis = 500),
+        label = "logo_elevation"
+    )
     val logoScale by animateFloatAsState(
         targetValue = if (isActiveVisual) 1.12f else 0.94f,
         animationSpec = tween(durationMillis = 650, easing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)),
@@ -190,6 +201,7 @@ fun ConnectionTab(settingsStore: SettingsStore) {
                 ) {
                     Box(
                         modifier = Modifier
+                            .shadow(logoElevation, RoundedCornerShape(40.dp), spotColor = Color(0xFF2AABEE))
                             .size(180.dp)
                             .clip(RoundedCornerShape(40.dp))
                             .clickable(
@@ -229,13 +241,37 @@ fun ConnectionTab(settingsStore: SettingsStore) {
                                 }
                         )
                     }
-                    Text(
-                        text = statusText,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = statusColor,
-                        textAlign = TextAlign.Center
+                    val dotInfinite = rememberInfiniteTransition(label = "status_dot")
+                    val dotAlpha by dotInfinite.animateFloat(
+                        initialValue = 0.3f,
+                        targetValue = 1f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(750),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "dot_alpha"
                     )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .background(
+                                    statusColor.copy(alpha = if (isVerifiedRunning) dotAlpha else 0.35f),
+                                    RoundedCornerShape(50)
+                                )
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = statusText,
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = statusColor,
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -252,19 +288,23 @@ fun ConnectionTab(settingsStore: SettingsStore) {
                             enabled = isRunning,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(52.dp),
+                                .height(54.dp)
+                                .then(
+                                    if (isRunning) Modifier.background(tgGradient, RoundedCornerShape(24.dp))
+                                    else Modifier
+                                ),
                             shape = RoundedCornerShape(24.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                                disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f)
+                                containerColor = Color.Transparent,
+                                contentColor = Color.White,
+                                disabledContainerColor = Color(0xFF4A7E9B).copy(alpha = 0.35f),
+                                disabledContentColor = Color.White.copy(alpha = 0.55f)
                             )
                         ) {
                             Text(
                                 stringResource(R.string.apply_in_telegram),
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.Bold
                             )
                         }
 
