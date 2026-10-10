@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.amurcanov.tgwsproxy.ProxyService
 import com.amurcanov.tgwsproxy.SettingsStore
 import com.amurcanov.tgwsproxy.ShizukuKeeper
+import com.amurcanov.tgwsproxy.KeepAliveAccessibilityService
 import rikka.shizuku.Shizuku
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -497,6 +498,46 @@ fun SettingsTab(settingsStore: SettingsStore) {
                     }
                 }
 
+                // 无障碍保活（GKD 同款复活锚点）：回前台时刷新状态
+                var a11yEnabled by remember { mutableStateOf(false) }
+                val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                DisposableEffect(lifecycleOwner) {
+                    val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                        if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                            a11yEnabled = KeepAliveAccessibilityService.isEnabled(context)
+                        }
+                    }
+                    lifecycleOwner.lifecycle.addObserver(observer)
+                    a11yEnabled = KeepAliveAccessibilityService.isEnabled(context)
+                    onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+                }
+
+                Text(
+                    stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_a11y_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = 16.sp
+                )
+                Text(
+                    stringResource(if (a11yEnabled) com.amurcanov.tgwsproxy.R.string.keepalive_a11y_ok else com.amurcanov.tgwsproxy.R.string.keepalive_a11y_todo),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (a11yEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.Medium
+                )
+                OutlinedButton(
+                    onClick = {
+                        try {
+                            context.startActivity(
+                                Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                                    .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                            )
+                        } catch (_: Throwable) {}
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    Text(stringResource(com.amurcanov.tgwsproxy.R.string.keepalive_a11y_open))
+                }
                 if (savedKeepaliveMode == "shizuku") {
                     var shizukuState by remember { mutableStateOf(ShizukuKeeper.probe(context)) }
                     var shizukuResult by remember { mutableStateOf("") }
